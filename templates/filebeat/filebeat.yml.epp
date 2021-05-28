@@ -1,5 +1,7 @@
 <%- |
   Array                 $filebeat_modules,
+  Boolean               $system_close,
+  Integer               $system_close_timeout,
   Boolean               $migration,
   Boolean               $monitor_enabled,
   String                $http_protocol,
@@ -35,6 +37,16 @@ filebeat:
   modules:
   <% $filebeat_modules.each |$module| { -%>
 - module: <%= $module %>
+<% if $system_close { -%>
+    syslog:
+      enabled: true
+      input:
+        close_timeout: <%=$system_close_timeout%>m
+    auth:
+      enabled: true
+      input:
+        close_timeout: <%=$system_close_timeout%>m
+<% } -%>
   <% } -%>
 
 output:

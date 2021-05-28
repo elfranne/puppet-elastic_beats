@@ -17,6 +17,8 @@
 # @param $beats_ensure             - What version the beats should be
 # @param $ensure                   - Whether this resource should be present or absent
 # @param $filebeat_modules         - Which modules to enable in Filebeat with default configuration
+# @param $system_close             - Enable close_timeout for system module
+# @param $system_close_timeout     - Close timeout for system module (in minutes)
 # @param $migration                - Whether migrating to a new version or not
 # @param $monitor_enabled          - If the beat should report back to Kibana (Monitoring page)
 # @param $auditbeat_output_url     - The output url for Auditbeat
@@ -60,6 +62,8 @@ define elastic_beats::instance (
     'packetbeat',
   ]]                       $absent_beats            = [],
   Array                    $filebeat_modules        = [],
+  Boolean                  $system_close            = false,
+  Integer                  $system_close_timeout    = 4,
   Boolean                  $migration               = false,
   Boolean                  $monitor_enabled         = false,
   Enum['absent','present'] $ensure                  = $elastic_beats::ensure,
@@ -147,19 +151,21 @@ define elastic_beats::instance (
             replace => true,
             notify  => Service["filebeat_${name}"],
             content => epp("${module_name}/filebeat/filebeat.yml.epp", {
-              'filebeat_modules' => $filebeat_modules,
-              'http_protocol'    => $http_protocol,
-              'kibana_url'       => $kibana_url,
-              'migration'        => $migration,
-              'monitor_enabled'  => $monitor_enabled,
-              'monitor_password' => $monitor_password,
-              'monitor_url'      => $monitor_url,
-              'monitor_username' => $monitor_username,
-              'name'             => $name,
-              'output_password'  => $output_password,
-              'output_type'      => $output_type,
-              'output_url'       => $filebeat_output_url,
-              'output_username'  => $output_username,
+              'filebeat_modules'     => $filebeat_modules,
+              'system_close'         => $system_close,
+              'system_close_timeout' => $system_close_timeout,
+              'http_protocol'        => $http_protocol,
+              'kibana_url'           => $kibana_url,
+              'migration'            => $migration,
+              'monitor_enabled'      => $monitor_enabled,
+              'monitor_password'     => $monitor_password,
+              'monitor_url'          => $monitor_url,
+              'monitor_username'     => $monitor_username,
+              'name'                 => $name,
+              'output_password'      => $output_password,
+              'output_type'          => $output_type,
+              'output_url'           => $filebeat_output_url,
+              'output_username'      => $output_username,
             }),
           }
         }
